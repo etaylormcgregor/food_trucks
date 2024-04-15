@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} San Francisco Food Trucks {% endblock %}</h1>
+
+    <form method="post">
+    <div class="form-group">
+        <label for="applicant">Applicant</label>
+        <input type="text" name="applicant"
+               placeholder="Search by applicant name" class="form-control"
+               value="{{ request.form['applicant'] }}"></input>
+    </div>
+
+    <div class="form-group">
+        <label for="address">Address</label>
+        <input type="text" name="address" 
+               placeholder="Search by address" class="form-control"
+               value="{{ request.form['address'] }}"></input>
+    </div>
+
+    <div class="form-group">
+        <label for="lat">Latitude</label>
+        <input type="number" step="any" name="lat" 
+               placeholder="Enter your latitude" class="form-control"
+               value="{{ request.form['lat'] }}"></input>
+    </div>
+
+    <div class="form-group">
+        <label for="lon">Longitude</label>
+        <input type="number" name="lon" step="any"
+               placeholder="Enter your longitude" class="form-control"
+               value="{{ request.form['lon'] }}"></input>
+    </div>
+
+    <div class="form-group">
+        <label for="approved">Search for approved trucks only</label>
+        <input type="checkbox" name="approved" class="form-control"
+               value="{{ request.form['approved'] }}" checked></input>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+
+    <table cellpading="1">
+   <tr>
+    <th>Location ID</th>
+    <th>Applicant</th>
+    <th>Address</th>
+    <th>Status</th>
+    <th>Latitude</th>
+    <th>Longitude</th>
+  </tr>
+   {% for item in permits %}
+   <tr>
+       <td>{{item.locationId}}</td>
+       <td>{{item.applicant}}</td>
+       <td>{{item.address}}</td>
+       <td>{{item.status}}</td>
+       <td>{{item.latitude}}</td>
+       <td>{{item.longitude}}</td>
+   </tr>
+   {% endfor %}
+   </table>
+{% endblock %}
