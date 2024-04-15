@@ -1,4 +1,5 @@
 import requests
+from haversine import haversine
 
 from models.permit import Permit
 
@@ -28,3 +29,8 @@ def get_permits():
 
 def valid_coordinates(lat, lon):
     return True if -90 < lat < 90 and -180 < lon < 180 else False
+
+
+def get_five_closest(permits, lat, lon):
+    permits = sorted(permits, key=lambda permit: haversine((lat, lon), (permit.latitude, permit.longitude)))
+    return permits[:5]

@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, flash
 
 from models.permit import Permit
 from app import create_app, db
-from utils import valid_coordinates
+from utils import valid_coordinates, get_five_closest
 
 app = create_app()
 
@@ -31,31 +31,22 @@ def index():
             flash('Please enter both latitude and longitude')
             return render_template('index.html', permits=[])
 
+        # create base of the query
+        query = Permit.query
+
+        if approvedOnly: query = query.filter(Permit.status=='APPROVED')
+
         # handle special 5 nearest case separately
         if (lat and lon):
             if (not valid_coordinates(lat, lon)):
                 flash('Please enter valid coordinates')
                 return render_template('index.html', permits=[])
 
-            whereClause = 'WHERE status="APPPROVED"' if approvedOnly else ''
+            permits = query.all()
+            closest_trucks = get_five_closest(permits, lat, lon)
 
-            sql = text(f'''
-                SELECT locationId, applicant, address, status, latitude, longitude, 
-                ((ACOS(SIN(:lat * PI() / 180) * SIN(latitude * PI() / 180) + COS(:lat * PI() / 180) * COS(latitude * PI() / 180) * COS((:lon - longitude) * PI() / 180)) * 180 / PI()) * 60 * 1.1515) AS distance 
-                FROM permits
-                {whereClause}
-                ORDER BY distance ASC 
-                LIMIT 5
-                ''')
-            
-            permits = db.session.execute(sql, {'lat':lat, 'lon':lon})
-            return render_template('index.html', permits=permits)
+            return render_template('index.html', permits=closest_trucks)
 
-        # filter by status and either applicant name or address
-        query = Permit.query
-
-        if approvedOnly: query = query.filter(Permit.status=='APPROVED')
-        
         if applicant: query = query.filter(Permit.applicant.like(f'%{applicant}%'))
         elif address: query = query.filter(Permit.address.like(f'%{address}%'))
 
