@@ -2,7 +2,8 @@ from sqlalchemy import text
 from flask import Flask, render_template, request, flash
 
 from models.permit import Permit
-from app import create_app
+from app import create_app, db
+from utils import valid_coordinates
 
 app = create_app()
 
@@ -32,6 +33,10 @@ def index():
 
         # handle special 5 nearest case separately
         if (lat and lon):
+            if (not valid_coordinates(lat, lon)):
+                flash('Please enter valid coordinates')
+                return render_template('index.html', permits=[])
+
             whereClause = 'WHERE status="APPPROVED"' if approvedOnly else ''
 
             sql = text(f'''

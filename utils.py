@@ -24,3 +24,7 @@ def get_permits():
     data = requests.get(url).json()
 
     return createPermits(data)
+
+
+def valid_coordinates(lat, lon):
+    return True if -90 < lat < 90 and -180 < lon < 180 else False
